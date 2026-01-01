@@ -33,7 +33,7 @@ Thank you for your interest in contributing! 🎉
 
 ```bash
 # Clone
-git clone https://github.com/yourusername/LLaVA-WorldSense.git
+git clone https://github.com/quyangminddock/LLaVA-WorldSense.git
 cd LLaVA-WorldSense
 
 # Setup environment

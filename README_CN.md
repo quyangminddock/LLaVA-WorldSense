@@ -33,7 +33,7 @@
 1. **克隆仓库**
 
 ```bash
-git clone https://github.com/yourusername/LLaVA-WorldSense.git
+git clone https://github.com/quyangminddock/LLaVA-WorldSense.git
 cd LLaVA-WorldSense
 ```
 
