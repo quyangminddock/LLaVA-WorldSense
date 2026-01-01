@@ -1,4 +1,4 @@
-# 🛡️ Jarvis WorldSense (LLaVA Edition)
+# 🛡️ Jarvis WorldSense
 
 <p align="center">
   <img src="docs/banner.png" alt="Jarvis WorldSense" width="600">
@@ -49,8 +49,9 @@ conda activate jarvis
 3. **Install Dependencies**
 ```bash
 pip install -r requirements.txt
-pip install git+https://github.com/haotian-liu/LLaVA.git
 ```
+
+> **Note**: If you want to use the legacy `LLaVA-1.5` 7B/13B models, you will need to install the original LLaVA package separately. For the default TinyLLaVA experience, this is NOT required.
 
 4. **Install Audio Drivers (macOS)**
 ```bash
