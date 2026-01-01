@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌋 LLaVA WorldSense - JARVIS AR</title>
+
+    <!-- Preconnect to CDNs -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+
+    <!-- MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <!-- Fullscreen Camera Background -->
+    <video id="camera-video" autoplay playsinline></video>
+    <canvas id="ar-overlay"></canvas>
+
+    <!-- Camera Placeholder (shown when camera is off) -->
+    <div class="camera-placeholder" id="camera-placeholder">
+        <div class="placeholder-icon">🎯</div>
+        <p>Click to Activate Vision System</p>
+    </div>
+
+    <!-- Flash Effect -->
+    <div class="capture-flash" id="capture-flash"
+        style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:white;opacity:0;pointer-events:none;z-index:999;">
+    </div>
+
+    <!-- HUD Overlay Container -->
+    <div class="hud-container">
+        <!-- Top HUD Bar - Status & Title -->
+        <div class="hud-top">
+            <div class="hud-title">
+                <span>🌋</span> JARVIS WorldSense
+            </div>
+            <div class="hud-status">
+                <div class="status-item" id="camera-status">
+                    <span class="status-dot"></span>
+                    <span>Vision</span>
+                </div>
+                <div class="status-item" id="ai-status">
+                    <span class="status-dot"></span>
+                    <span>AI Core</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Left Controls -->
+        <div class="hud-controls">
+            <button class="control-btn" id="btn-camera-toggle" title="Toggle Camera">
+                <span>📹</span>
+            </button>
+            <button class="control-btn" id="btn-capture" title="Capture Frame">
+                <span>📸</span>
+            </button>
+            <button class="control-btn" id="toggle-ar" title="Toggle AR Overlay">
+                <span>✨</span>
+            </button>
+        </div>
+
+        <!-- Bottom Left - Audio Visualizer -->
+        <div class="hud-visualizer" id="visualizer-container" style="display:none;">
+            <canvas id="audio-visualizer"></canvas>
+        </div>
+
+        <!-- Right Side - Chat Panel -->
+        <div class="hud-chat">
+            <div class="chat-header">
+                <h2>⚡ Conversation</h2>
+                <button class="btn-icon" id="btn-clear-chat" title="Clear">
+                    <span>🗑️</span>
+                </button>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <!-- Welcome Message -->
+                <div class="message ai-message">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="message-text">
+                            <p><strong>JARVIS WorldSense Online.</strong></p>
+                            <p>Vision and audio systems ready. Activate camera to begin analysis.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typing-indicator" style="display:none;">
+                <div class="message ai-message">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom HUD - Input Controls -->
+        <div class="hud-bottom">
+            <div class="hud-input-container">
+                <button class="voice-btn" id="btn-voice" title="Voice Input">
+                    <span class="mic-icon">🎤</span>
+                </button>
+
+                <textarea id="text-input" class="text-input" placeholder="QUERY: What do you see?" rows="1"></textarea>
+
+                <button class="btn-send" id="btn-send" title="Send">
+                    <span>🚀</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Initializing Systems...</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/config.js"></script>
+    <script defer src="/static/js/three-scene.js"></script>
+    <script defer src="/static/js/camera.js"></script>
+    <script defer src="/static/js/ar_hud.js"></script>
+    <script defer src="/static/js/voice.js"></script>
+    <script defer src="/static/js/chat.js"></script>
+    <script defer src="/static/js/main.js"></script>
+</body>
+
+</html>

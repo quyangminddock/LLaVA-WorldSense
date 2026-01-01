@@ -1,0 +1,28 @@
+# LLaVA-WorldSense Dependencies
+# Core ML frameworks
+torch>=2.1.0
+torchvision>=0.16.0
+transformers>=4.37.0
+accelerate>=0.25.0
+
+# LLaVA - install from source separately
+# git clone https://github.com/haotian-liu/LLaVA.git && cd LLaVA && pip install -e .
+
+# Audio processing
+openai-whisper>=20231117
+pyaudio>=0.2.14
+
+# Camera and image processing
+opencv-python>=4.8.0
+Pillow>=10.0.0
+
+# Web UI
+gradio>=4.0.0
+
+# Modern Web Server (NEW)
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+
+# Text-to-speech (optional)
+gTTS>=2.4.0

@@ -1,0 +1,725 @@
+/* ==========================================
+   LLaVA WorldSense - JARVIS AR Interface
+   Iron Man Style HUD Overlay
+   ========================================== */
+
+/* ==========================================
+   CSS Variables & Theme
+   ========================================== */
+:root {
+    /* Jarvis Colors - Cyan/Blue HUD Style */
+    --jarvis-cyan: #00e5ff;
+    --jarvis-blue: #0091ea;
+    --jarvis-green: #00ff41;
+    --jarvis-yellow: #ffea00;
+    --jarvis-red: #ff1744;
+
+    /* HUD Overlays */
+    --hud-bg: rgba(0, 20, 40, 0.75);
+    --hud-border: rgba(0, 229, 255, 0.4);
+    --hud-glow: 0 0 20px rgba(0, 229, 255, 0.6);
+
+    /* Text */
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --text-accent: var(--jarvis-cyan);
+
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+
+    /* Transitions */
+    --transition-fast: 0.15s ease-out;
+    --transition-base: 0.25s ease-out;
+}
+
+/* ==========================================
+   Reset & Base - Fullscreen Mode
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    /* No scrolling - Jarvis AR style */
+    position: fixed;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #000;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* ==========================================
+   Fullscreen Camera Background
+   ========================================== */
+#camera-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: 0;
+    /* Mirror the video for natural interaction */
+    transform: scaleX(-1);
+}
+
+#ar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1;
+    /* Mirror the overlay to match the video */
+    transform: scaleX(-1);
+}
+
+/* Camera placeholder */
+.camera-placeholder {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at center, #0a1520 0%, #000000 100%);
+    z-index: 0;
+    cursor: pointer;
+}
+
+.placeholder-icon {
+    font-size: 5rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--jarvis-cyan);
+    text-shadow: var(--hud-glow);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
+.camera-placeholder p {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ==========================================
+   HUD Container - Floating Overlay
+   ========================================== */
+.hud-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 10;
+    /* Iron Man Vignette */
+    background: radial-gradient(circle at center, transparent 60%, rgba(0, 20, 40, 0.4) 100%);
+    box-shadow: inset 0 0 100px rgba(0, 255, 255, 0.1);
+}
+
+/* Add scanning grid over the whole screen */
+.hud-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.hud-container>* {
+    pointer-events: auto;
+}
+
+/* ==========================================
+   Top HUD Bar - Status & Title
+   ========================================== */
+.hud-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(180deg, rgba(0, 20, 40, 0.9) 0%, transparent 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-lg);
+    border-bottom: 1px solid var(--hud-border);
+}
+
+.hud-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--jarvis-cyan);
+    text-shadow: var(--hud-glow);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.hud-status {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 0.5rem 1rem;
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--jarvis-red);
+    box-shadow: 0 0 10px currentColor;
+    animation: blink 2s infinite;
+}
+
+.status-item.active .status-dot {
+    background: var(--jarvis-green);
+    animation: none;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* ==========================================
+   Bottom HUD Panel - Input & Controls
+   ========================================== */
+.hud-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(0deg, rgba(0, 20, 40, 0.95) 0%, transparent 100%);
+    padding: var(--spacing-lg);
+    border-top: 1px solid var(--hud-border);
+}
+
+.hud-input-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+/* Voice Button */
+.voice-btn {
+    width: 60px;
+    height: 60px;
+    background: var(--hud-bg);
+    border: 2px solid var(--jarvis-cyan);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.voice-btn:hover {
+    border-color: var(--jarvis-green);
+    box-shadow: var(--hud-glow);
+}
+
+.voice-btn.active {
+    border-color: var(--jarvis-green);
+    box-shadow: 0 0 30px var(--jarvis-green);
+    animation: voicePulse 1s infinite;
+}
+
+@keyframes voicePulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.mic-icon {
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 5px var(--jarvis-cyan));
+}
+
+/* Text Input */
+.text-input {
+    flex: 1;
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--text-primary);
+    font-family: 'Inter', monospace;
+    font-size: 1rem;
+    resize: none;
+    height: 60px;
+}
+
+.text-input:focus {
+    outline: none;
+    border-color: var(--jarvis-cyan);
+    box-shadow: var(--hud-glow);
+}
+
+.text-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+/* Send Button */
+.btn-send {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--jarvis-cyan), var(--jarvis-blue));
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: white;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-base);
+    flex-shrink: 0;
+}
+
+.btn-send:hover {
+    box-shadow: 0 0 30px var(--jarvis-cyan);
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   Right Side HUD - Chat Panel
+   ========================================== */
+.hud-chat {
+    position: absolute;
+    top: 100px;
+    right: var(--spacing-lg);
+    width: 400px;
+    max-height: calc(100vh - 250px);
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--hud-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h2 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: var(--jarvis-cyan);
+    letter-spacing: 0.1em;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: color var(--transition-fast);
+}
+
+.btn-icon:hover {
+    color: var(--jarvis-cyan);
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+/* Custom Scrollbar */
+.chat-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: rgba(0, 229, 255, 0.1);
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--jarvis-cyan);
+    border-radius: 2px;
+}
+
+/* Messages */
+.message {
+    display: flex;
+    gap: var(--spacing-xs);
+    animation: messageSlide 0.3s ease-out;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.user-message {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    border-radius: 50%;
+    background: rgba(0, 229, 255, 0.2);
+    border: 1px solid var(--hud-border);
+    flex-shrink: 0;
+}
+
+.message-content {
+    flex: 1;
+}
+
+.message-text {
+    background: rgba(0, 229, 255, 0.1);
+    border: 1px solid var(--hud-border);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.user-message .message-text {
+    background: rgba(0, 229, 255, 0.25);
+    border-color: var(--jarvis-cyan);
+}
+
+.message-text p {
+    margin: 0;
+}
+
+/* Streaming Message */
+.message.streaming .message-text {
+    border-color: var(--jarvis-green);
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.streaming-cursor {
+    display: inline-block;
+    animation: blinkCursor 1s infinite;
+    color: var(--jarvis-green);
+    margin-left: 2px;
+}
+
+@keyframes blinkCursor {
+
+    0%,
+    49% {
+        opacity: 1;
+    }
+
+    50%,
+    100% {
+        opacity: 0;
+    }
+}
+
+/* System Message */
+.system-message {
+    justify-content: center;
+    opacity: 0.8;
+}
+
+.system-message .message-content {
+    text-align: center;
+}
+
+.system-message .message-text {
+    background: rgba(0, 145, 234, 0.15);
+    border-color: var(--jarvis-blue);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.system-message.error .message-text {
+    background: rgba(255, 23, 68, 0.15);
+    border-color: var(--jarvis-red);
+}
+
+.system-message.warning .message-text {
+    background: rgba(255, 234, 0, 0.15);
+    border-color: var(--jarvis-yellow);
+}
+
+/* Audio Player */
+.message-audio {
+    margin-top: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.jarvis-audio {
+    flex: 1;
+    height: 32px;
+    outline: none;
+}
+
+.jarvis-audio::-webkit-media-controls-panel {
+    background: rgba(0, 229, 255, 0.1);
+    border: 1px solid var(--hud-border);
+    border-radius: var(--radius-sm);
+}
+
+.jarvis-audio::-webkit-media-controls-current-time-display,
+.jarvis-audio::-webkit-media-controls-time-remaining-display {
+    color: var(--jarvis-cyan);
+}
+
+/* Typing Indicator */
+.typing-dots {
+    display: flex;
+    gap: 4px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--jarvis-cyan);
+    animation: typingBounce 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+    }
+
+    30% {
+        transform: translateY(-8px);
+    }
+}
+
+/* ==========================================
+   Left Side HUD - Audio Visualizer
+   ========================================== */
+.hud-visualizer {
+    position: absolute;
+    bottom: 150px;
+    left: var(--spacing-lg);
+    width: 300px;
+    height: 100px;
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    backdrop-filter: blur(10px);
+}
+
+#audio-visualizer {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-sm);
+}
+
+/* ==========================================
+   Loading Overlay
+   ========================================== */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: opacity 0.5s, visibility 0.5s;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 3px solid rgba(0, 229, 255, 0.2);
+    border-top-color: var(--jarvis-cyan);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-text {
+    position: absolute;
+    margin-top: 100px;
+    color: var(--jarvis-cyan);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+}
+
+/* ==========================================
+   Top Right Controls
+   ========================================== */
+.hud-controls {
+    position: absolute;
+    top: 100px;
+    left: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.control-btn {
+    width: 50px;
+    height: 50px;
+    background: var(--hud-bg);
+    border: 1px solid var(--hud-border);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    font-size: 1.5rem;
+}
+
+.control-btn:hover {
+    border-color: var(--jarvis-cyan);
+    box-shadow: var(--hud-glow);
+}
+
+.control-btn.active {
+    background: rgba(0, 229, 255, 0.2);
+    border-color: var(--jarvis-cyan);
+}
+
+/* ==========================================
+   Responsive Adjustments
+   ========================================== */
+@media (max-width: 1024px) {
+    .hud-chat {
+        width: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hud-chat {
+        right: var(--spacing-sm);
+        width: calc(100vw - 2 * var(--spacing-sm));
+        max-height: 300px;
+    }
+
+    .hud-visualizer {
+        display: none;
+    }
+
+    .hud-title {
+        font-size: 1.2rem;
+    }
+}

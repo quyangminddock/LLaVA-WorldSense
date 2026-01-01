@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Connection Test</h1>
+    <div id="status">Connecting...</div>
+    <div id="log"></div>
+    
+    <script>
+        const log = document.getElementById('log');
+        const status = document.getElementById('status');
+        
+        function addLog(msg) {
+            const p = document.createElement('p');
+            p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            log.appendChild(p);
+            console.log(msg);
+        }
+        
+        addLog('Attempting to connect to WebSocket...');
+        
+        const ws = new WebSocket('ws://localhost:8080/ws');
+        
+        ws.onopen = () => {
+            status.textContent = '✅ Connected';
+            status.style.color = 'green';
+            addLog('✅ WebSocket connected successfully!');
+            
+            // Send ping
+            ws.send(JSON.stringify({ type: 'ping' }));
+            addLog('Sent ping message');
+        };
+        
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            addLog(`📨 Received: ${JSON.stringify(data)}`);
+        };
+        
+        ws.onerror = (error) => {
+            status.textContent = '❌ Error';
+            status.style.color = 'red';
+            addLog(`❌ WebSocket error: ${error}`);
+        };
+        
+        ws.onclose = () => {
+            status.textContent = '❌ Disconnected';
+            status.style.color = 'red';
+            addLog('❌ WebSocket disconnected');
+        };
+    </script>
+</body>
+</html>
